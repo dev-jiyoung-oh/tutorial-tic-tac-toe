@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
 
-function Square({ value, onSquareClick }) {
+function Square({ value, onSquareClick, highlight }) {
   return (
-    <button className="square" onClick={onSquareClick}>
+    <button className={`square ${highlight}`} onClick={onSquareClick}>
       {value}
     </button>
   );
 }
 
-function Board({ xIsNext, squares, onPlay }) {
+function Board({ xIsNext, squares, winningSquares, onPlay, endGame}) {
   function handleClick(i) {
-    if (calculateWinner(squares) || squares[i]) {
+    if (calculateWinner(squares).length > 0 || squares[i]) {
       return;
     }
     const nextSquares = squares.slice();
@@ -22,16 +22,18 @@ function Board({ xIsNext, squares, onPlay }) {
     onPlay(nextSquares);
   }
 
-  const winner = calculateWinner(squares);
   let status;
+  const [winner, winningLines] = calculateWinner(squares);
   if (winner) {
     status = 'Winner: ' + winner;
+    
+    endGame(winner, winningLines);
   } else {
     status = 'Next player: ' + (xIsNext ? 'X' : 'O');
   }
 
   // Board를 하드 코딩 하는 대신 두 개의 루프를 사용하여 사각형을 만들도록 다시 작성
-  function rendering() {
+  function render() {
     let elements = [];
     
     elements.push(React.createElement('div', {key: 'status', className: 'status'}, status));
@@ -41,7 +43,8 @@ function Board({ xIsNext, squares, onPlay }) {
 
       for (let j=0; j<3; j++) {
         let index = 3*i + j;
-        childrens.push(React.createElement(Square, {key: index, value: squares[index], onSquareClick: () => handleClick(index) }));
+        let highlight = winningSquares[index] ? 'highlight' : '';
+        childrens.push(React.createElement(Square, {key: index, value: squares[index], onSquareClick: () => handleClick(index), highlight }));
       }
 
       elements.push(React.createElement('div', {key: `board-row-${i}`, className: 'board-row'}, childrens));
@@ -50,11 +53,12 @@ function Board({ xIsNext, squares, onPlay }) {
     return elements;
   }
   
-  return rendering();
+  return render();
 }
 
 export default function Game() {
   const [history, setHistory] = useState([Array(9).fill(null)]);
+  const [winningSquares, setWinningSquares] = useState(Array(9).fill(null));
   const [currentMove, setCurrentMove] = useState(0);
   const xIsNext = currentMove % 2 === 0;
   const currentSquares = history[currentMove];
@@ -100,10 +104,22 @@ export default function Game() {
     setIsInfoAsc(!isInfoAsc);
   }
 
+  // 누군가 승리하면 승리의 원인이 된 세 개의 사각형을 강조 표시
+  function endGame(winner, winningLines) {
+    if (!winningSquares.every(el => el === null)) return;
+
+    const winning = [...winningSquares];
+    winningLines.map((i) => {
+      winning[i] = true;
+    })
+
+    setWinningSquares(winning);
+  }
+
   return (
     <div className="game">
       <div className="game-board">
-        <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
+        <Board xIsNext={xIsNext} squares={currentSquares} winningSquares={winningSquares} onPlay={handlePlay} endGame={endGame}/>
       </div>
       <div className="game-info">
         <button onClick={toggleInfoSort}>{isInfoAsc ? '↑' : '↓'}</button>
@@ -127,8 +143,8 @@ function calculateWinner(squares) {
   for (let i = 0; i < lines.length; i++) {
     const [a, b, c] = lines[i];
     if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-      return squares[a];
+      return [squares[a], lines[i]];
     }
   }
-  return null;
+  return [];
 }

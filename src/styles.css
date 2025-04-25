@@ -69,6 +69,10 @@ body {
   padding: 0;
   text-align: center;
   width: 34px;
+
+  &.highlight {
+    border: 2px solid #000;
+  }
 }
 
 .board-row:after {
