@@ -94,13 +94,20 @@ export default function Game() {
     );
   });
 
+  // 동작을 오름차순 또는 내림차순으로 정렬할 수 있는 토글 버튼을 추가
+  const [isInfoAsc, setIsInfoAsc] = useState(true);
+  function toggleInfoSort() {
+    setIsInfoAsc(!isInfoAsc);
+  }
+
   return (
     <div className="game">
       <div className="game-board">
         <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
       </div>
       <div className="game-info">
-        <ol>{moves}</ol>
+        <button onClick={toggleInfoSort}>{isInfoAsc ? '↑' : '↓'}</button>
+        <ol>{isInfoAsc ? moves : moves.reverse()}</ol>
       </div>
     </div>
   );
