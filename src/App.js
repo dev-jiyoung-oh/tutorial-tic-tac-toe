@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 
 function Square({ value, onSquareClick }) {
   return (
@@ -30,26 +30,27 @@ function Board({ xIsNext, squares, onPlay }) {
     status = 'Next player: ' + (xIsNext ? 'X' : 'O');
   }
 
-  return (
-    <>
-      <div className="status">{status}</div>
-      <div className="board-row">
-        <Square value={squares[0]} onSquareClick={() => handleClick(0)} />
-        <Square value={squares[1]} onSquareClick={() => handleClick(1)} />
-        <Square value={squares[2]} onSquareClick={() => handleClick(2)} />
-      </div>
-      <div className="board-row">
-        <Square value={squares[3]} onSquareClick={() => handleClick(3)} />
-        <Square value={squares[4]} onSquareClick={() => handleClick(4)} />
-        <Square value={squares[5]} onSquareClick={() => handleClick(5)} />
-      </div>
-      <div className="board-row">
-        <Square value={squares[6]} onSquareClick={() => handleClick(6)} />
-        <Square value={squares[7]} onSquareClick={() => handleClick(7)} />
-        <Square value={squares[8]} onSquareClick={() => handleClick(8)} />
-      </div>
-    </>
-  );
+  // Board를 하드 코딩 하는 대신 두 개의 루프를 사용하여 사각형을 만들도록 다시 작성
+  function rendering() {
+    let elements = [];
+    
+    elements.push(React.createElement('div', {key: 'status', className: 'status'}, status));
+
+    for (let i=0; i<3; i++) {
+      let childrens = [];
+
+      for (let j=0; j<3; j++) {
+        let index = 3*i + j;
+        childrens.push(React.createElement(Square, {key: index, value: squares[index], onSquareClick: () => handleClick(index) }));
+      }
+
+      elements.push(React.createElement('div', {key: `board-row-${i}`, className: 'board-row'}, childrens));
+    }
+
+    return elements;
+  }
+  
+  return rendering();
 }
 
 export default function Game() {
