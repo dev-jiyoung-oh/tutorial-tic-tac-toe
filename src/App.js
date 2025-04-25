@@ -69,6 +69,16 @@ export default function Game() {
   }
 
   const moves = history.map((squares, move) => {
+    // 현재 이동에 대해서만 버튼 대신 “당신은 #번째 순서에 있습니다…”를 표시
+    if (move == currentMove) {
+      return (
+        <li key={move}>
+          <p>“당신은 {move}번째 순서에 있습니다…</p>
+        </li>
+      );
+    }
+    
+    // 현재 이동이 아닌 경우 버튼 표시
     let description;
     if (move > 0) {
       description = 'Go to move #' + move;
