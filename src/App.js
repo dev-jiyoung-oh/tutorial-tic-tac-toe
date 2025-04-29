@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 function Square({ value, onSquareClick, highlight }) {
   return (
-    <button className={`square ${highlight}`} onClick={onSquareClick}>
+    <button className={`square ${highlight ? "highlight" : ''}`} onClick={onSquareClick}>
       {value}
     </button>
   );
@@ -26,8 +26,10 @@ function Board({ xIsNext, squares, winningSquares, onPlay, endGame}) {
   const [winner, winningLines] = calculateWinner(squares);
   if (winner) {
     status = 'Winner: ' + winner;
-    
     endGame(winner, winningLines);
+  } else if (squares.every(el => el != null)) {
+    // 아무도 승리하지 않으면 무승부라는 메시지를 표시
+    status = "무승부";    
   } else {
     status = 'Next player: ' + (xIsNext ? 'X' : 'O');
   }
@@ -43,7 +45,7 @@ function Board({ xIsNext, squares, winningSquares, onPlay, endGame}) {
 
       for (let j=0; j<3; j++) {
         let index = 3*i + j;
-        let highlight = winningSquares[index] ? 'highlight' : '';
+        let highlight =  !!winningSquares[index];
         childrens.push(React.createElement(Square, {key: index, value: squares[index], onSquareClick: () => handleClick(index), highlight }));
       }
 
