@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 function Square({ value, onSquareClick, highlight }) {
   return (
@@ -26,14 +26,21 @@ function Board({ xIsNext, squares, winningSquares, onPlay, endGame}) {
   const [winner, winningLines] = calculateWinner(squares);
   if (winner) {
     status = 'Winner: ' + winner;
-    endGame(winner, winningLines);
+    //endGame(winner, winningLines); // X. 렌더링 도중 부모 state 변경! => useEffect() 내부로 이동
   } else if (squares.every(el => el != null)) {
     // 아무도 승리하지 않으면 무승부라는 메시지를 표시
     status = "무승부";    
   } else {
     status = 'Next player: ' + (xIsNext ? 'X' : 'O');
   }
-
+  
+  // 렌더링 이후 승자 발생 시 endGame 호출
+  useEffect(() => {
+    if (winner && winningLines) {
+      endGame(winner, winningLines);
+    }
+  }, [winner, winningLines, endGame]);
+  
   // Board를 하드 코딩 하는 대신 두 개의 루프를 사용하여 사각형을 만들도록 다시 작성
   function render() {
     let elements = [];
