@@ -19,7 +19,7 @@ function Board({ xIsNext, squares, winningSquares, onPlay, endGame}) {
     } else {
       nextSquares[i] = 'O';
     }
-    onPlay(nextSquares);
+    onPlay(nextSquares, i);
   }
 
   let status;
@@ -66,14 +66,21 @@ function Board({ xIsNext, squares, winningSquares, onPlay, endGame}) {
 }
 
 export default function Game() {
-  const [history, setHistory] = useState([Array(9).fill(null)]);
+  const [history, setHistory] = useState(
+    [
+      {
+        squares: Array(9).fill(null),
+        lastIndex: -1,
+      }
+    ]
+  );
   const [winningSquares, setWinningSquares] = useState(Array(9).fill(null));
   const [currentMove, setCurrentMove] = useState(0);
   const xIsNext = currentMove % 2 === 0;
-  const currentSquares = history[currentMove];
+  const currentSquares = history[currentMove].squares;
 
-  function handlePlay(nextSquares) {
-    const nextHistory = [...history.slice(0, currentMove + 1), nextSquares];
+  function handlePlay(nextSquares, lastIndex) {
+    const nextHistory = [...history.slice(0, currentMove + 1), { squares: nextSquares, lastIndex: lastIndex } ];
     setHistory(nextHistory);
     setCurrentMove(nextHistory.length - 1);
   }
@@ -82,7 +89,7 @@ export default function Game() {
     setCurrentMove(nextMove);
   }
 
-  const moves = history.map((squares, move) => {
+  const moves = history.map((step, move) => {
     // 현재 이동에 대해서만 버튼 대신 “당신은 #번째 순서에 있습니다…”를 표시
     if (move == currentMove) {
       return (
@@ -96,6 +103,10 @@ export default function Game() {
     let description;
     if (move > 0) {
       description = 'Go to move #' + move;
+      
+      // 이동 히스토리 목록에서 각 이동의 위치를 형식(열, 행)으로 표시
+      step.lastIndex
+      description += ' (' + parseInt(step.lastIndex / 3) + "," + (step.lastIndex % 3) +')';
     } else {
       description = 'Go to game start';
     }
