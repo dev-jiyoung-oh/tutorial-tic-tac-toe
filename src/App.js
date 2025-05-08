@@ -52,7 +52,7 @@ function Board({ xIsNext, squares, winningSquares, onPlay, endGame, nowIndex }) 
 
       for (let j=0; j<3; j++) {
         let index = 3*i + j;
-        let highlight =  !!winningSquares[index];
+        let highlight =  winner && !!winningSquares[index];
         childrens.push(
           React.createElement(Square, {
             key: index, 
