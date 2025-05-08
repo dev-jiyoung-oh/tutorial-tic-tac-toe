@@ -73,6 +73,10 @@ body {
   &.highlight {
     border: 2px solid #000;
   }
+
+  &.now {
+    color: #6495ed;
+  }
 }
 
 .board-row:after {

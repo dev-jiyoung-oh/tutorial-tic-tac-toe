@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 
-function Square({ value, onSquareClick, highlight }) {
+function Square({ value, onSquareClick, highlight, isNow }) {
   return (
-    <button className={`square ${highlight ? "highlight" : ''}`} onClick={onSquareClick}>
+    <button className={`square${highlight ? " highlight" : ''}${isNow ? " now" : ''}`} onClick={onSquareClick}>
       {value}
     </button>
   );
 }
 
-function Board({ xIsNext, squares, winningSquares, onPlay, endGame}) {
+function Board({ xIsNext, squares, winningSquares, onPlay, endGame, nowIndex }) {
   function handleClick(i) {
     if (calculateWinner(squares).length > 0 || squares[i]) {
       return;
@@ -53,7 +53,15 @@ function Board({ xIsNext, squares, winningSquares, onPlay, endGame}) {
       for (let j=0; j<3; j++) {
         let index = 3*i + j;
         let highlight =  !!winningSquares[index];
-        childrens.push(React.createElement(Square, {key: index, value: squares[index], onSquareClick: () => handleClick(index), highlight }));
+        childrens.push(
+          React.createElement(Square, {
+            key: index, 
+            value: squares[index], 
+            onSquareClick: () => handleClick(index), 
+            highlight,
+            isNow: index == nowIndex
+          })
+        );
       }
 
       elements.push(React.createElement('div', {key: `board-row-${i}`, className: 'board-row'}, childrens));
@@ -78,6 +86,7 @@ export default function Game() {
   const [currentMove, setCurrentMove] = useState(0);
   const xIsNext = currentMove % 2 === 0;
   const currentSquares = history[currentMove].squares;
+  const nowIndex = history[currentMove].lastIndex;
 
   function handlePlay(nextSquares, lastIndex) {
     const nextHistory = [...history.slice(0, currentMove + 1), { squares: nextSquares, lastIndex: lastIndex } ];
@@ -139,7 +148,7 @@ export default function Game() {
   return (
     <div className="game">
       <div className="game-board">
-        <Board xIsNext={xIsNext} squares={currentSquares} winningSquares={winningSquares} onPlay={handlePlay} endGame={endGame}/>
+        <Board xIsNext={xIsNext} squares={currentSquares} winningSquares={winningSquares} onPlay={handlePlay} endGame={endGame} nowIndex={nowIndex}/>
       </div>
       <div className="game-info">
         <button onClick={toggleInfoSort}>{isInfoAsc ? '↑' : '↓'}</button>
